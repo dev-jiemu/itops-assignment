@@ -3,8 +3,12 @@
     <p>이슈 목록 페이지입니다.</p>
   </div>
   <div>
-    <!-- TODO : status filter -->
     Status Filter
+    <select v-model="status">
+      <option value="">상태 선택</option>
+      <option v-for="item in statusList" :value="item">{{item}}</option>
+    </select>
+    <input type="button" value="검색" @click="doSearch">
   </div>
   <div>
     <table>
@@ -42,13 +46,14 @@ import { useRouter } from 'vue-router';
 
 const issues = ref([])
 const router = useRouter()
+const status = ref('')
+
+const statusList = [
+  'PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED',
+];
 
 onMounted(async () => {
-  try {
-    issues.value = await apiService.getIssuesList()
-  } catch (error) {
-    console.error('fail issue lists : ' + error)
-  }
+  await doSearch()
 })
 
 const goDetail = (id) => {
@@ -57,6 +62,14 @@ const goDetail = (id) => {
 
 const createIssue = () => {
   router.push(`/issues/new`);
+}
+
+const doSearch = async () => {
+  try {
+    issues.value = await apiService.getIssuesList(status.value)
+  } catch (error) {
+    console.error('fail issue lists : ' + error)
+  }
 }
 </script>
 

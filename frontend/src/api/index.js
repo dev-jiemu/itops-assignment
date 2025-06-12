@@ -8,18 +8,24 @@ const apiService = {
     return users
   },
 
-  async getIssuesList() {
+  async getIssuesList(status) {
     if (isDev) {
+      // TODO : status filter
       return issues
     } else {
-      const response = await fetch(`${baseUrl}/issues`, {
+      let reqUrl = `${baseUrl}/issue`
+
+      if(status && status !== '') {
+        reqUrl += "?status=" + status
+      }
+
+      const response = await fetch(reqUrl, {
         method: "GET",
       })
       return response.json()
     }
   },
 
-  // TODO : 단건 조회, POST, PATCH
   async getIssueDetails(id) {
     console.log('get issue details : ', id)
     if (isDev) {
@@ -51,9 +57,15 @@ const apiService = {
   async updateIssue(issue) {
     console.log('update issue : ', issue)
     if(isDev) {
-
+      // TODO : dev - update
     } else {
-      const response = await fetch(`${baseUrl}/issue/${issue.id}`, {})
+      const response = await fetch(`${baseUrl}/issue/${issue.id}`, {
+        method: "PATCH",
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(issue)
+      })
+
+      return response.json()
     }
   }
 }

@@ -2,10 +2,23 @@
   <div>
     <p>이슈 생성/상세/수정 페이지입니다.</p>
   </div>
-  <div>
+  <div v-if="!isEdit">
+     담당자 :
+      <select v-model="issue.user">
+        <option v-for="item in users" :value="item.id">{{item.name}}</option>
+      </select>
   </div>
-  <div>
-    <button type="submit">
+  <div v-if="isEdit">
+    <p v-if="isEdit">ID: {{issue.id}}</p>
+    <p>제목 : <input v-model="issue.title"></p>
+    <p>상태 :
+      <select v-model="issue.status">
+        <option v-for="item in statusList" :value="item">{{item}}</option>
+      </select>
+    </p>
+  </div>
+  <div style="padding-top: 10px;">
+    <button type="submit" @click="doIssue">
       {{ isEdit ? '수정하기' : '생성하기' }}
     </button>
     <button type="button" @click="goList">
@@ -17,6 +30,7 @@
 import apiService from '@/api/index.js'
 import { useRoute, useRouter } from 'vue-router';
 import { computed, onMounted, ref } from 'vue';
+import { users } from '@/data/mockData.js';
 
 const route = useRoute();
 const router = useRouter();
@@ -30,6 +44,10 @@ const issue = ref({
   createdAt: '',
   updatedAt: '',
 });
+
+const statusList = [
+  'PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED',
+];
 
 const isEdit = computed(() => {
   return issue.value.id !== 0
@@ -49,10 +67,9 @@ onMounted(async () => {
 });
 
 const doIssue = async () => {
-  // id 가 없으면 create 로 간주
-  // id 가 있으면 update 로 간주함
   let result
 
+  // TODO : return goList?
   if (isEdit) {
     result = await apiService.updateIssue(issue.value)
   } else {
