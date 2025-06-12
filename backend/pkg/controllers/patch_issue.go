@@ -47,7 +47,6 @@ func PatchIssue(c *gin.Context) {
 		return
 	}
 
-	// description 은 수정 안하나...?
 	updateIssue := managers.IssueManager.UpdateIssue(req.Title, req.Status, issueInfo.ID, userInfo)
 	if updateIssue.ID == 0 {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Issue update failed"})

@@ -22,23 +22,29 @@ func CreateIssue(c *gin.Context) {
 		return
 	}
 
+	// 담당자가 없는 경우 : PENDING
+	// 있는 경우 : IN_PROGRESS
 	userInfo := managers.UserManager.GetUserInfo(req.UserId)
-	if userInfo.ID == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"error": "user is not found"})
-		return
-	}
+	//if userInfo.ID == 0 {
+	//	c.JSON(http.StatusNotFound, gin.H{"error": "user is not found"})
+	//	return
+	//}
 
 	now := time.Now()
 
-	// 생성은 PENDING 으로
 	newIssue := models.Issue{
 		ID:          uint(managers.IssueManager.GetIssueCount() + 1),
 		Title:       req.Title,
 		Description: req.Description,
-		Status:      models.ISSUE_STATUS_PENDING,
-		User:        userInfo,
 		CreatedAt:   now,
 		UpdatedAt:   now,
+	}
+
+	if userInfo.ID == 0 {
+		newIssue.Status = models.ISSUE_STATUS_PENDING
+	} else {
+		newIssue.Status = models.ISSUE_STATUS_IN_PROGRESS
+		newIssue.User = userInfo
 	}
 
 	managers.IssueManager.AddIssue(newIssue)
