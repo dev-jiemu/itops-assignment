@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/dev-jiemu/itops-assignment/backend/pkg/managers"
+	"github.com/dev-jiemu/itops-assignment/backend/pkg/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -37,6 +38,12 @@ func PatchIssue(c *gin.Context) {
 	issueInfo := managers.IssueManager.GetIssue(uint(id))
 	if issueInfo.ID == 0 {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Issue not found"})
+		return
+	}
+
+	// 완료된, 취소상태인 이슈는 수정하지 않음
+	if issueInfo.Status == models.ISSUE_STATUS_COMPLETED || issueInfo.Status == models.ISSUE_STATUS_CANCELLED {
+		c.JSON(http.StatusConflict, gin.H{"error": "Issue already completed or canceled"})
 		return
 	}
 
